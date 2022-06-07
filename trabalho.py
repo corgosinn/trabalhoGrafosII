@@ -12,38 +12,29 @@ professoresCSV = []
 # MENU DE ARQUIVOS
 fileDisciplina = 'disciplinas_toy.csv'
 fileProfessores = 'professores_toy.csv'
-print("Escolha um arquivo de disciplina: ")
-print("1- discplinas_toy.csv")
-print("2- disciplinas.csv")
-print('3- Outro')
+print("Escolha os nomes dos arquivos: ")
+print("1- discplinas_toy.csv e professores_toy.csv")
+print("2- disciplinas.csv e professores.csv")
+print('3- Outros')
 
 op = int(input("Digite: "))
 
 if op == 1:
     fileDisciplina = 'disciplinas_toy.csv'
-elif op == 2:
-    fileDisciplina = 'disciplinas.csv'
-else:
-    print("Digite o nome do arquivo: ")
-    fileDisciplina = input()
-print("Escolha um arquivo de professores: ")
-print("1- professores_toy.csv")
-print("2- professores.csv")
-print('3- Outro')
-
-op = int(input("Digite: "))
-
-if op == 1:
     fileProfessores = 'professores_toy.csv'
 elif op == 2:
+    fileDisciplina = 'disciplinas.csv'
     fileProfessores = 'professores.csv'
 else:
-    print("Digite o nome do arquivo: ")
+    print("Digite o nome do arquivo de disciplina: ")
+    fileDisciplina = input()
+    print("Digite o nome do arquivo de professores: ")
     fileProfessores = input()
 
 
 somaFluxo = 0
-
+# Inicia o time
+inicioTime = time.time()
 # LER DISCIPLINAS CSV
 try:
     fileDisciplinaCSV = open(os.path.join(os.path.dirname(__file__),
@@ -88,3 +79,5 @@ for linha in range(grafo.contagem):
             table.add_row([grafo.nome[linha], grafo.nome[coluna], grafo.nomeCompleto[coluna],
                            qtdTurmas[grafo.numeroAresta[linha][coluna]], dados[1][grafo.numeroAresta[linha][coluna]]])
 print(table)
+# Printa na tela o tempo
+print(f"Tempo de execução: {round(time.time()-inicioTime,4)} segundos")

@@ -1,7 +1,4 @@
 from asyncio.windows_events import NULL
-from dis import dis
-import enum
-from operator import le
 
 
 class Grafo:
@@ -36,9 +33,9 @@ class Grafo:
             print("Aresta invalida!")
 
     def ler_arquivo(self, csvProf, csvDisc, b):
-        """Le arquivo de grafo no formato dimacs"""
+        """Le arquivo de grafo atravez do csv"""
         try:
-            # Leitura csv
+
             self.quantidade_arestas = 0
             self.quantidade_vertices = 1
             dicPrioridades = {0: 0, 1: 3, 2: 5, 3: 8, 4: 10}
@@ -113,67 +110,71 @@ class Grafo:
             print("Aresta invalida!")
 
     def bellman_ford(self, s=0):
-        dist = [float("inf") for _ in range(
+        distancia = [float("inf") for _ in range(
             self.quantidade_vertices)]  # Distance from s
         # Predecessor in shortest path from s
-        pred = [None for _ in range(self.quantidade_vertices)]
-        dist[s] = 0
-        for it in range(self.quantidade_vertices):
+        predecessores = [None for _ in range(self.quantidade_vertices)]
+        distancia[s] = 0
+        for var in range(self.quantidade_vertices):
             updated = False
             for (u, v, w) in self.lista_adj:
-                if dist[v] > dist[u] + w:
-                    dist[v] = dist[u] + w
-                    pred[v] = u
+                if distancia[v] > distancia[u] + w:
+                    distancia[v] = distancia[u] + w
+                    predecessores[v] = u
                     updated = True
             if not updated:
                 break
-        path = []
-        if pred[len(pred) - 1] != None:
-            n = pred[len(pred) - 1]
-            path.append(self.quantidade_vertices-1)
+        caminho = []  # Recebe o caminho atravez dos predecessores
+        if predecessores[len(predecessores) - 1] != None:
+            n = predecessores[len(predecessores) - 1]
+            caminho.append(self.quantidade_vertices-1)
             while(True):
-                path.append(n)
+                caminho.append(n)
                 if(n == 0):
                     break
-                n = pred[n]
-            path.reverse()
-            min = 9999999
-            for x in range(len(path)):
-                if x != len(path)-1:
-                    if int(self.c_adj[path[x]][path[x+1]]) < int(min):
-                        min = self.c_adj[path[x]][path[x+1]]
-            return pred[self.quantidade_vertices - 1], path, min
+                n = predecessores[n]
+            caminho.reverse()
+            min = float("inf")
+            for x in range(len(caminho)):
+                if x != len(caminho)-1:
+                    if int(self.c_adj[caminho[x]][caminho[x+1]]) < float(min):
+                        min = self.c_adj[caminho[x]][caminho[x+1]]
+            # Se houver caminho minimo
+            return predecessores[self.quantidade_vertices - 1], caminho, min
         else:
-            return None, None, 0
+            return None, None, 0  # Se não existir caminho minimo
 
-    def SCM(self):
+    def SCM(self):  # Sucessores caminhos minimos
         F = [0 for i in range(self.quantidade_arestas*2)]
         CUSTO = [0 for i in range(self.quantidade_arestas*2)]
-        listaBellmanFord = self.bellman_ford()
+        listaBellmanFord = self.bellman_ford()  # Pega o caminho minimo
 
+        # Euquanto houver fluxo de S e caminho minimo de S ate R
         while(listaBellmanFord[0] != None and self.b[0] > 0):
 
             C = listaBellmanFord[1]
             f = int(listaBellmanFord[2])
             for elementosEmC in range(len(C)):
-
+                # Enquanto nao chegar no final do caminho
                 if elementosEmC != len(C)-1:
                     u = C[elementosEmC]
                     v = C[elementosEmC+1]
-                    F[self.numeroAresta[u][v]] = F[self.numeroAresta[u][v]] + f
+                    F[self.numeroAresta[u][v]] = F[self.numeroAresta[u]
+                                                   [v]] + f  # Aumenta o fluxo
                     CUSTO[self.numeroAresta[u][v]
                           ] = CUSTO[self.numeroAresta[u][v]] + self.w_adj[u][v]
+                    # Reduzir capacidade
                     self.c_adj[u][v] = int(self.c_adj[u][v]) - f
-
                     if self.c_adj[u][v] == 0:
                         if(self.remove_aresta(u, v) == -1):
                             return
-
                     if self.mat_adj[v][u] == 0:
                         self.addAresta(v, u, -(self.w_adj[u][v]), 999, 1)
-                    self.c_adj[v][u] = self.c_adj[v][u] + f
+                    self.c_adj[v][u] = self.c_adj[v][u] + \
+                        f  # Aumentar capacidade arco reverso
                     if F[self.numeroAresta[v][u]] != 0:
-                        F[self.numeroAresta[v][u]] = F[self.numeroAresta[v][u]] - f
+                        F[self.numeroAresta[v][u]] = F[self.numeroAresta[v]
+                                                       [u]] - f  # Reduzir fluxo arco reverso
 
             self.b[0] = self.b[0] - f
             self.b[self.quantidade_vertices -
